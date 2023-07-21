@@ -1,4 +1,4 @@
-PRESENTATION - CLASSIFICATION CASE
+# Classification: Credit Card Campaign
 
 Alvaro
   Introduction
