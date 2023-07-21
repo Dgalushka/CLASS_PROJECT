@@ -9,7 +9,7 @@ We have analyzed the data to understand the demographics and other characteristi
 
 ## Content:
 
-### 1. Data processing & Machine Learning (provided in a python notebook) 
+### 1. Data processing & Machine Learning (provided in Python notebook) 
 
 ### 2. Data visualisation, analysis and Dashboard (provided in Tableau)
 
