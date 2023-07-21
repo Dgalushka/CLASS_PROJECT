@@ -1,6 +1,6 @@
 # Classification: Credit Card Campaign
 
-### Case description
+## Case description
 
 In the following project we put our hands on marketing study of a bank with 18,000 current bank customers.
 
