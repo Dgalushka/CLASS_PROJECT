@@ -1,5 +1,7 @@
 # Classification: Credit Card Campaign
 
+[image](https://github.com/AlvaroRivasOrellana/CLASS_PROJECT/assets/130316726/f13a8582-4ac5-4e39-8a6f-bad984c1712d)
+
 ## Case description
 
 In the following project we put our hands on marketing study of a bank with 18,000 current bank customers.
