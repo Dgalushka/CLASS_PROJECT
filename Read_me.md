@@ -1,6 +1,6 @@
 # Classification: Credit Card Campaign
 
-<img src="Files/Creditcards.png" width = 500/>
+<img src="Files/creditcards.png" width = 500>
 
 ## Case description
 
