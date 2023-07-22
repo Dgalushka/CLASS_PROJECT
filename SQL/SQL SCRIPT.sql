@@ -97,6 +97,8 @@ select Own_Your_Home "Home Ownership", count(*)	as "Recount"			-- Home Ownership
 from credit_card_data
 group by Own_Your_Home;
 
+-- According to this data our most typical customer would have a medium income, one bank account,
+-- no overdraft protection, 1-2 credit cards and owns one home with 2-4 family members.
 
 
 -- Top 10 Customers (Average Balance)
@@ -149,6 +151,14 @@ select credit_cards_held as "Number of Credit Cards Owned", avg(bank_accounts_op
 from credit_card_data
 group by credit_cards_held;
 
+SELECT 
+    (COUNT(*) * SUM(credit_cards_held * bank_accounts_open) - SUM(credit_cards_held) * SUM(bank_accounts_open)) /
+    (SQRT((COUNT(*) * SUM(credit_cards_held * credit_cards_held) - POW(SUM(credit_cards_held), 2)) *
+          (COUNT(*) * SUM(bank_accounts_open * bank_accounts_open) - POW(SUM(bank_accounts_open), 2)))) AS correlation_coefficient
+FROM
+    credit_card_data;
+
+-- They show a positive correlation of '0.7592342137339895'.
 
 
 -- CUSTOMERS OF INTEREST
@@ -164,10 +174,6 @@ where (Credit_Rating = "medium" OR Credit_Rating = "high")
     
     
 -- customers whose average balance is less than the average balance
-
-select customer_number as "Customer Number", average_balance as "Average Balance"
-from credit_card_data
-where average_balance < (select avg(average_balance) from credit_card_data);
 
 create view below_avg_balance_customers as
 select customer_number as "Customer Number", average_balance as "Average Balance"
@@ -201,9 +207,14 @@ where Credit_Rating in ('High', 'Low');
 
 -- Specific Customer Insight -- 11th Least "Q1 Balance"
 
-select * from credit_card_data
-order by Q1_balance asc
-limit 1 offset 10;
+SELECT *
+FROM credit_card_data
+WHERE Q1_Balance IS NOT NULL
+ORDER BY Q1_Balance
+LIMIT 1 OFFSET 10;
+
+
+
 
 
 
@@ -216,9 +227,9 @@ SELECT
     count(*) as "Recount",
     CONCAT(ROUND((count(*) / (SELECT count(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / count(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / count(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / count(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / count(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT count(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Mailer_Type;
@@ -229,9 +240,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Reward;
@@ -242,9 +253,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Income_Level;
@@ -255,9 +266,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Bank_accounts_open;
@@ -268,9 +279,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Overdraft_Protection;
@@ -281,9 +292,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Credit_Rating;
@@ -294,9 +305,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Credit_Cards_Held;
@@ -307,9 +318,9 @@ SELECT
     COUNT(*) as "Recount",
     CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Homes_Owned;
@@ -318,11 +329,11 @@ GROUP BY Homes_Owned;
 SELECT
     Household_Size as "Household Size",                   -- HOUSEHOLD SIZE
     COUNT(*) as "Recount",
-    CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount ( % )",
+    CONCAT(ROUND((COUNT(*) / (SELECT COUNT(*) FROM credit_card_data)) * 100, 2), '%') as "Recount (%)",
     SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) as "Recount ( Yes )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( Yes - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (Yes -%)",
     SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) as "Recount ( No )",
-    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount ( No - % ) in Percentage",
+    CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'No' THEN 1 ELSE 0 END) / COUNT(*) * 100), 2), '%') as "Recount (No-%)",
     CONCAT(ROUND((SUM(CASE WHEN Offer_Accepted = 'Yes' THEN 1 ELSE 0 END) / (SELECT COUNT(*) FROM credit_card_data WHERE Offer_Accepted = 'Yes') * 100), 2), '%') as "Percentage of accepted offers"
 FROM credit_card_data
 GROUP BY Household_Size;
